@@ -8,7 +8,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
   <style>
-    /* Orijinal stil bloğunuz */
     body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4; }
     .container { max-width:1200px; margin:0 auto; padding:20px; }
     .search-box, .add-box { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
@@ -17,33 +16,34 @@
     th, td { border:1px solid #ddd; padding:10px; text-align:left; }
     th { background:#f2f2f2; cursor:pointer; }
     img.preview { max-width:100px; border-radius:5px; }
+    img.cell-img { max-width:80px; border-radius:5px; }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Kayıt Formu -->
+    <!-- 1) Kayıt Formu -->
     <div class="add-box">
       <input type="text" id="partName" placeholder="PARÇA İSMİ">
       <input type="text" id="partNumber" placeholder="PARÇA NUMARASI">
       <input type="text" id="aircraftType" placeholder="UÇAK TİPİ">
       <input type="text" id="region" placeholder="BÖLGE">
 
-      <!-- Resim Seçme / Çekme -->
+      <!-- Fotoğraf Opsiyonları -->
       <input type="file" accept="image/*" id="galleryPicker" style="display:none" onchange="handleFile(this.files)">
       <input type="file" accept="image/*" capture="environment" id="cameraPicker" style="display:none" onchange="handleFile(this.files)">
-      <button onclick="galleryPicker.click()">🖼️ Galeriden Seç</button>
-      <button onclick="cameraPicker.click()">📸 Fotoğraf Çek</button>
+      <button type="button" onclick="document.getElementById('galleryPicker').click()">🖼️ Galeriden Seç</button>
+      <button type="button" onclick="document.getElementById('cameraPicker').click()">📸 Fotoğraf Çek</button>
       <img id="preview" class="preview" alt="Preview">
 
-      <button id="saveBtn">Kaydet</button>
+      <button type="button" id="saveBtn">Kaydet</button>
     </div>
 
-    <!-- Arama & Filtre -->
+    <!-- 2) Arama & Filtre -->
     <div class="search-box">
       <input type="text" id="searchInput" placeholder="Arama yap..." onkeyup="filterTable()">
     </div>
 
-    <!-- Veri Tablosu -->
+    <!-- 3) Veri Tablosu -->
     <table id="dataTable">
       <thead>
         <tr>
