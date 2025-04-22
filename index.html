@@ -4,59 +4,50 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PN UYGULAMASI</title>
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK for Storage -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <style>
-    /* (Orijinal CSS bloğunuz aynı şekilde kalıyor) */
+    /* Orijinal stil bloğunuz */
     body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4; }
     .container { max-width:1200px; margin:0 auto; padding:20px; }
     .search-box, .add-box { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
-    .search-box input, .add-box input, .add-box select, .add-box button {
-      padding:10px; border:1px solid #ddd; border-radius:5px; font-size:16px;
-    }
+    .add-box input, .add-box button, .search-box input, .filter-select { padding:10px; border:1px solid #ddd; border-radius:5px; font-size:16px; }
     table { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; }
     th, td { border:1px solid #ddd; padding:10px; text-align:left; }
     th { background:#f2f2f2; cursor:pointer; }
-    tr:nth-child(even) { background:#f9f9f9; }
-    tr:hover { background:#f1f1f1; }
     img.preview { max-width:100px; border-radius:5px; }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- 1) Yeni Kayıt Formu -->
+    <!-- Kayıt Formu -->
     <div class="add-box">
       <input type="text" id="partName" placeholder="PARÇA İSMİ">
       <input type="text" id="partNumber" placeholder="PARÇA NUMARASI">
       <input type="text" id="aircraftType" placeholder="UÇAK TİPİ">
       <input type="text" id="region" placeholder="BÖLGE">
 
-      <!-- Galeri veya Kameradan Seç -->
+      <!-- Resim Seçme / Çekme -->
       <input type="file" accept="image/*" id="galleryPicker" style="display:none" onchange="handleFile(this.files)">
       <input type="file" accept="image/*" capture="environment" id="cameraPicker" style="display:none" onchange="handleFile(this.files)">
       <button onclick="galleryPicker.click()">🖼️ Galeriden Seç</button>
       <button onclick="cameraPicker.click()">📸 Fotoğraf Çek</button>
-      <img id="preview" class="preview" />
+      <img id="preview" class="preview" alt="Preview">
 
       <button id="saveBtn">Kaydet</button>
     </div>
 
-    <!-- 2) Arama ve Filtre -->
+    <!-- Arama & Filtre -->
     <div class="search-box">
       <input type="text" id="searchInput" placeholder="Arama yap..." onkeyup="filterTable()">
     </div>
 
-    <!-- 3) Veri Tablosu -->
+    <!-- Veri Tablosu -->
     <table id="dataTable">
       <thead>
-        <tr id="headerRow">
-          <th>PARÇA İSMİ</th>
-          <th>PARÇA NUMARASI</th>
-          <th>UÇAK TİPİ</th>
-          <th>BÖLGE</th>
-          <th>RESİM</th>
+        <tr>
+          <th>PARÇA İSMİ</th><th>PARÇA NUMARASI</th><th>UÇAK TİPİ</th><th>BÖLGE</th><th>RESİM</th>
         </tr>
         <tr id="filterRow"></tr>
       </thead>
