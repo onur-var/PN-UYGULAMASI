@@ -4,14 +4,13 @@
  */
 function doPost(e) {
   try {
-    const sheetId = '1Ati7Jpwzh1sIVdRw6cj9WZgdl16js-zNMScaFyJEIw0'; // Google Sheet ID
+    const sheetId = '1Ati7Jpwzh1sIVdRw6cj9WZgdl16js-zNMScaFyJEIw0';
     const sheetName = 'Sayfa1';
     const data = JSON.parse(e.postData.contents);
 
     const ss = SpreadsheetApp.openById(sheetId);
     const sheet = ss.getSheetByName(sheetName);
 
-    // Yeni satır ekle (A:E kolon sırasına uygun)
     sheet.appendRow([
       data.partName,
       data.partNumber,
