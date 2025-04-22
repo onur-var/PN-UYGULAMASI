@@ -1,105 +1,66 @@
-// Google Sheets API Ayarları
-const SHEET_ID = '1Ati7Jpwzh1sIVdRw6cj9WZgdl16js-zNMScaFyJEIw0'; // Google Sheet ID
-const API_KEY = 'AIzaSyDltb5FbPvL9bLgj_GK4_DEDaPK0A7oM_g'; // API anahtarı
-const RANGE = 'Sayfa1!A1:E'; // Sheet aralığı
+// --- Firebase Konfigürasyonu ---
+const firebaseConfig = {
+  apiKey: "AIzaSyDltb5FbPvL9bLgj_GK4_DEDaPK0A7oM_g",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "1Ati7Jpwzh1sIVdRw6cj9WZgdl16js-zNMScaFyJEIw0",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+};
 
-// Google Sheets verilerini çek
-async function fetchSheetData() {
-    try {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
-        }
-        const data = await response.json();
-        if (data.values) {
-            populateTable(data.values);
-        } else {
-            throw new Error("Gelen veri boş.");
-        }
-    } catch (error) {
-        console.error("API'den veri alınırken hata oluştu:", error.message);
-    }
+// Firebase'i başlat
+firebase.initializeApp(firebaseConfig);
+const storage = firebase.storage();
+const db = firebase.firestore();
+
+// (Eski Google Sheets okuma fonksiyonlarınızı koruyabilirsiniz)
+// ... fetchSheetData(), populateFilters(), populateTable(), filterTable() ...
+
+document.addEventListener("DOMContentLoaded", () => {
+  fetchSheetData();
+  document.getElementById('saveBtn').addEventListener('click', uploadAndSave);
+});
+
+let selectedFile = null;
+
+function handleFile(files) {
+  selectedFile = files[0];
+  if (!selectedFile) return;
+  document.getElementById('preview').src = URL.createObjectURL(selectedFile);
 }
 
-// Tabloyu filtreler ve filtre satırını oluşturur
-function populateFilters(data) {
-    const filterRow = document.getElementById("filterRow");
-    filterRow.innerHTML = "";
+async function uploadAndSave() {
+  // 1) Form alanlarını oku
+  const name = document.getElementById('partName').value.trim();
+  const num  = document.getElementById('partNumber').value.trim();
+  const type = document.getElementById('aircraftType').value.trim();
+  const region = document.getElementById('region').value.trim();
+  if (!name || !num || !type || !region || !selectedFile) {
+    alert('Tüm alanları ve resmi eklediğinizden emin olun!');
+    return;
+  }
 
-    const columns = data[0]; // Başlıklar
-    columns.forEach((_, colIndex) => {
-        const filterCell = document.createElement("th");
-        const select = document.createElement("select");
-        select.className = "filter-select";
-        select.dataset.column = colIndex;
+  // 2) Firebase Storage'a yolla
+  const path = `parts/${Date.now()}_${selectedFile.name}`;
+  const storageRef = storage.ref(path);
+  const snapshot = await storageRef.put(selectedFile);
+  const downloadURL = await snapshot.ref.getDownloadURL();
 
-        const optionAll = document.createElement("option");
-        optionAll.value = "";
-        optionAll.textContent = "Tümü";
-        select.appendChild(optionAll);
+  // 3) Firestore'a kaydet
+  await db.collection('parts').add({
+    partName: name,
+    partNumber: num,
+    aircraftType: type,
+    region: region,
+    imageUrl: downloadURL,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
 
-        const uniqueValues = [...new Set(data.slice(1).map(row => row[colIndex] || ""))];
-        uniqueValues.sort().forEach(value => {
-            const option = document.createElement("option");
-            option.value = value;
-            option.textContent = value || "(Boş)";
-            select.appendChild(option);
-        });
+  // 4) Formu temizle ve tabloyu yenile
+  ['partName','partNumber','aircraftType','region'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('preview').src = '';
+  selectedFile = null;
+  fetchSheetData(); // Veya doğrudan Firestore'dan çekerek tabloyu yenile
 
-        select.addEventListener("change", filterTable);
-        filterCell.appendChild(select);
-        filterRow.appendChild(filterCell);
-    });
+  alert('Yeni parça kaydedildi ✅');
 }
 
-// Tabloyu doldur ve filtreleri oluştur
-function populateTable(data) {
-    const tbody = document.querySelector("#dataTable tbody");
-    tbody.innerHTML = "";
-
-    data.slice(1).forEach(row => {
-        const tr = document.createElement("tr");
-        row.forEach(cell => {
-            const td = document.createElement("td");
-            td.textContent = cell || "";
-            tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
-    });
-
-    populateFilters(data); // Filtreleri doldur
-}
-
-// Tabloyu filtreler
-function filterTable() {
-    const searchInput = document.getElementById("searchInput").value.toLowerCase();
-    const rows = document.querySelectorAll("#dataTable tbody tr");
-    const filters = Array.from(document.querySelectorAll(".filter-select"));
-
-    rows.forEach(row => {
-        const cells = row.querySelectorAll("td");
-        let matches = true;
-
-        filters.forEach(select => {
-            const colIndex = parseInt(select.dataset.column, 10);
-            const filterValue = select.value;
-
-            // Filtreleme şartı: Eğer "Tümü" seçilirse ya da hücre değeri filtreyle eşleşirse
-            const cellValue = cells[colIndex]?.textContent || "";
-            if (filterValue && cellValue !== filterValue) {
-                matches = false;
-            }
-        });
-
-        const rowText = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(" ");
-        if (searchInput && !rowText.includes(searchInput)) {
-            matches = false;
-        }
-
-        row.style.display = matches ? "" : "none";
-    });
-}
-
-// Sayfa yüklendiğinde verileri çek
-document.addEventListener("DOMContentLoaded", fetchSheetData);
+// (Orijinal Google Sheets okuma fonksiyonlarınız burada çalışmaya devam eder)
