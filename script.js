@@ -1,9 +1,9 @@
 // --- Firebase Storage Bağlantısı ---
 const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  apiKey: "AIzaSyDltb5FbPvL9bLgj_GK4_DEDaPK0A7oM_g",
+  authDomain: "1Ati7Jpwzh1sIVdRw6cj9WZgdl16js-zNMScaFyJEIw0.firebaseapp.com",
+  projectId: "1Ati7Jpwzh1sIVdRw6cj9WZgdl16js-zNMScaFyJEIw0",
+  storageBucket: "1Ati7Jpwzh1sIVdRw6cj9WZgdl16js-zNMScaFyJEIw0.appspot.com",
 };
 firebase.initializeApp(firebaseConfig);
 const storage = firebase.storage();
